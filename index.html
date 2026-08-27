@@ -686,6 +686,47 @@
         vertical-align: middle;
     }
 
+
+    /* Dynamic KPI table */
+    .kpi-section-heading { align-items: center; }
+    .section-heading-copy { min-width: 0; }
+    .btn-add-kpi { margin-left: auto; white-space: nowrap; }
+    .kpi-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+    .kpi-table { width: 100%; min-width: 900px; border-collapse: collapse; background: #fff; }
+    .kpi-table th {
+      padding: 12px 10px;
+      text-align: left;
+      color: var(--green-800);
+      background: var(--green-050);
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .kpi-table td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .kpi-table tr:last-child td { border-bottom: 0; }
+    .kpi-table .kpi-col-name { width: 21%; }
+    .kpi-table .kpi-col-goal { width: 22%; }
+    .kpi-table .kpi-col-actual { width: 25%; }
+    .kpi-table .kpi-col-weight { width: 11%; }
+    .kpi-table .kpi-col-rating { width: 11%; }
+    .kpi-table .kpi-col-action { width: 10%; text-align: center; }
+    .kpi-table textarea { min-height: 44px; }
+    .kpi-table input[type="number"] {
+      width: 100%; min-height: 44px; padding: 10px 12px;
+      border: 1px solid #cfdcd3; border-radius: 11px; outline: none;
+    }
+    .kpi-table input[type="number"]:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(34,160,90,.12); }
+    .kpi-delete {
+      min-height: 42px; min-width: 42px; padding: 8px 10px;
+      border: 1px solid #f0b8b2; border-radius: 10px;
+      background: var(--danger-bg); color: var(--danger); cursor: pointer; font-weight: 800;
+    }
+    .kpi-delete:disabled { opacity: .35; cursor: not-allowed; }
+    .kpi-weight-status { margin-top: 7px; color: var(--warning); font-size: 12px; font-weight: 800; }
+    .kpi-weight-status.valid { color: var(--green-700); }
+    .kpi-weight-status.invalid { color: var(--danger); }
+    .kpi-score-row { grid-template-columns: 1fr 260px; }
+
 </style>
 </head>
 <body>
@@ -771,13 +812,14 @@
 </div>
 </section>
 <!-- 02 Performance Goals -->
-<section class="form-section">
-<div class="section-heading">
+<section class="form-section" id="performanceGoalsSection">
+<div class="section-heading kpi-section-heading">
 <div class="section-number">02</div>
-<div>
+<div class="section-heading-copy">
 <h2>Performance Goals</h2>
-<p>Each goal carries 20%. Ratings use a 1.0–5.0 scale in 0.5 increments.</p>
+<p>Add KPIs as needed. Ratings use a 1.0–5.0 scale in 0.5 increments, and the total KPI weight must equal 100% before submission.</p>
 </div>
+<button type="button" class="btn btn-secondary btn-add-kpi no-print" id="addKpiBtn">+ Add KPI</button>
 </div>
 <div class="rating-guide">
 <div><strong>5</strong><span>Exceeds Expectations / Outstanding</span></div>
@@ -786,53 +828,27 @@
 <div><strong>2</strong><span>Meets Some Expectations</span></div>
 <div><strong>1</strong><span>Does Not Meet Expectations</span></div>
 </div>
-<div class="goal-card">
-<div class="goal-head"><strong>CCTR</strong><span class="weight-pill">20%</span></div>
-<div class="goal-body">
-<div class="field"><label class="field-label">Objective</label><input type="text" name="objective_cctr" value="CCTR" readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Indicator</label><input type="text" name="indicator_cctr" value="Actual CCTR/CCTR Goal" readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Evidence</label><textarea name="evidence_cctr" oninput="updatePreview(this,'preview_cctr')" placeholder="Add evidence or paste a URL"></textarea><a id="preview_cctr" class="evidence-preview" href="#" target="_blank" rel="noopener">Open evidence link ↗</a></div>
-<div class="field"><label class="field-label required">Rating</label><select name="rating_cctr" class="goal-rating" required></select></div>
+<div class="kpi-table-wrap">
+<table class="kpi-table">
+<thead>
+<tr>
+<th>KPI</th>
+<th>Goal</th>
+<th>Actual Score</th>
+<th>Weight %</th>
+<th>Rating</th>
+<th class="no-print">Action</th>
+</tr>
+</thead>
+<tbody id="kpiBody"></tbody>
+</table>
 </div>
+<textarea name="performance_kpis" id="performance_kpis" hidden></textarea>
+<div class="score-row kpi-score-row">
+<div>
+<p>Weighted Performance Goals score based on all KPI ratings and weights.</p>
+<div class="kpi-weight-status" id="kpiWeightStatus">Total KPI Weight: 0% · Must equal 100%</div>
 </div>
-<div class="goal-card">
-<div class="goal-head"><strong>Partnership with Other Departments</strong><span class="weight-pill">20%</span></div>
-<div class="goal-body">
-<div class="field"><label class="field-label">Objective</label><input type="text" name="objective_partnership" value="Partnership with other Dept." readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Indicator</label><input type="text" name="indicator_partnership" value="Superior Assessment" readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Evidence</label><textarea name="evidence_partnership" oninput="updatePreview(this,'preview_partnership')" placeholder="Add evidence or paste a URL"></textarea><a id="preview_partnership" class="evidence-preview" href="#" target="_blank" rel="noopener">Open evidence link ↗</a></div>
-<div class="field"><label class="field-label required">Rating</label><select name="rating_partnership" class="goal-rating" required></select></div>
-</div>
-</div>
-<div class="goal-card">
-<div class="goal-head"><strong>SPH</strong><span class="weight-pill">20%</span></div>
-<div class="goal-body">
-<div class="field"><label class="field-label">Objective</label><input type="text" name="objective_sph" value="Actual SPH/SPH Goal" readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Indicator</label><input type="text" name="indicator_sph" value="Actual Hours/Hours Goal" readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Evidence</label><textarea name="evidence_sph" oninput="updatePreview(this,'preview_sph')" placeholder="Add evidence or paste a URL"></textarea><a id="preview_sph" class="evidence-preview" href="#" target="_blank" rel="noopener">Open evidence link ↗</a></div>
-<div class="field"><label class="field-label required">Rating</label><select name="rating_sph" class="goal-rating" required></select></div>
-</div>
-</div>
-<div class="goal-card">
-<div class="goal-head"><strong>Personal Attendance</strong><span class="weight-pill">20%</span></div>
-<div class="goal-body">
-<div class="field"><label class="field-label">Objective</label><input type="text" name="objective_attendance" value="Personal Attendance" readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Indicator</label><input type="text" name="indicator_attendance" value="Actual Hours/Hours Goal" readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Evidence</label><textarea name="evidence_attendance" oninput="updatePreview(this,'preview_attendance')" placeholder="Add evidence or paste a URL"></textarea><a id="preview_attendance" class="evidence-preview" href="#" target="_blank" rel="noopener">Open evidence link ↗</a></div>
-<div class="field"><label class="field-label required">Rating</label><select name="rating_attendance" class="goal-rating" required></select></div>
-</div>
-</div>
-<div class="goal-card">
-<div class="goal-head"><strong>Hours</strong><span class="weight-pill">20%</span></div>
-<div class="goal-body">
-<div class="field"><label class="field-label">Objective</label><input type="text" name="objective_hours" value="Hours" readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Indicator</label><input type="text" name="indicator_hours" value="Actual Hours/Hours Goal" readonly class="click-to-edit-field" title="Click to edit"></div>
-<div class="field"><label class="field-label">Evidence</label><textarea name="evidence_hours" oninput="updatePreview(this,'preview_hours')" placeholder="Add evidence or paste a URL"></textarea><a id="preview_hours" class="evidence-preview" href="#" target="_blank" rel="noopener">Open evidence link ↗</a></div>
-<div class="field"><label class="field-label required">Rating</label><select name="rating_hours" class="goal-rating" required></select></div>
-</div>
-</div>
-<div class="score-row">
-<p>Average of the five Performance Goals ratings.</p>
 <div class="field"><label class="field-label">Performance Goals Average Score</label><input type="text" name="performance_goals_average" readonly></div>
 </div>
 </section>
@@ -1181,8 +1197,81 @@
 
     const ratingValues = ["5", "4.5", "4", "3.5", "3", "2.5", "2", "1.5", "1"];
 
+    // ========================================================
+    // DYNAMIC PERFORMANCE KPIs
+    // One KPI is shown initially. Additional rows can be added as needed.
+    // ========================================================
+    function ratingOptions(selected = '') {
+      return '<option value="" disabled' + (selected ? '' : ' selected') + '>Select rating</option>' +
+        ratingValues.map(value => `<option value="${value}"${String(selected) === value ? ' selected' : ''}>${value}</option>`).join('');
+    }
+
+    function addKPIRow(values = {}) {
+      const tbody = document.getElementById('kpiBody');
+      const row = document.createElement('tr');
+      row.dataset.kpiRow = 'true';
+      row.innerHTML = `
+        <td class="kpi-col-name"><div class="field"><input type="text" data-kpi-field="kpi" value="${escapeHtmlAttr(values.kpi ?? '')}" placeholder="e.g. CCTR" required></div></td>
+        <td class="kpi-col-goal"><div class="field"><input type="text" data-kpi-field="goal" value="${escapeHtmlAttr(values.goal ?? '')}" placeholder="Goal / target" required></div></td>
+        <td class="kpi-col-actual"><div class="field"><textarea data-kpi-field="actualScore" placeholder="Actual score / evidence" required>${escapeHtmlText(values.actualScore ?? '')}</textarea></div></td>
+        <td class="kpi-col-weight"><div class="field"><input type="number" data-kpi-field="weight" min="0.5" max="100" step="0.5" value="${escapeHtmlAttr(values.weight ?? '20')}" required></div></td>
+        <td class="kpi-col-rating"><div class="field"><select class="goal-rating" data-kpi-field="rating" required>${ratingOptions(values.rating ?? '')}</select></div></td>
+        <td class="kpi-col-action no-print"><button type="button" class="kpi-delete" title="Remove KPI" aria-label="Remove KPI">Delete</button></td>`;
+      tbody.appendChild(row);
+      row.querySelector('.kpi-delete').addEventListener('click', () => {
+        if (document.querySelectorAll('[data-kpi-row]').length <= 1) return;
+        row.remove();
+        updateKpiDeleteButtons();
+        calculateAverages();
+      });
+      row.querySelectorAll('input, textarea, select').forEach(el => {
+        el.addEventListener('input', calculateAverages);
+        el.addEventListener('change', calculateAverages);
+      });
+      updateKpiDeleteButtons();
+      calculateAverages();
+    }
+
+    function escapeHtmlAttr(value) {
+      return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function escapeHtmlText(value) {
+      return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function updateKpiDeleteButtons() {
+      const buttons = Array.from(document.querySelectorAll('.kpi-delete'));
+      const disable = buttons.length <= 1;
+      buttons.forEach(button => button.disabled = disable);
+    }
+
+    function getKpiRows() {
+      return Array.from(document.querySelectorAll('[data-kpi-row]')).map((row, index) => ({
+        index: index + 1,
+        kpi: row.querySelector('[data-kpi-field="kpi"]').value.trim(),
+        goal: row.querySelector('[data-kpi-field="goal"]').value.trim(),
+        actualScore: row.querySelector('[data-kpi-field="actualScore"]').value.trim(),
+        weight: parseFloat(row.querySelector('[data-kpi-field="weight"]').value),
+        rating: parseFloat(row.querySelector('[data-kpi-field="rating"]').value)
+      }));
+    }
+
+    function buildPerformanceKpisText() {
+      return getKpiRows().map(item => [
+        `KPI ${item.index}`,
+        `KPI: ${item.kpi}`,
+        `Goal: ${item.goal}`,
+        `Actual Score: ${item.actualScore}`,
+        `Weight: ${Number.isFinite(item.weight) ? item.weight : ''}%`,
+        `Rating: ${Number.isFinite(item.rating) ? item.rating : ''}`
+      ].join('\n')).join('\n\n');
+    }
+
+    document.getElementById('addKpiBtn').addEventListener('click', () => addKPIRow({ weight: '20' }));
+
     function populateRatingSelects() {
-      document.querySelectorAll('.goal-rating, .effect-rating').forEach(select => {
+      document.querySelectorAll('.effect-rating').forEach(select => {
         if (select.options.length) return;
         const placeholder = document.createElement('option');
         placeholder.value = '';
@@ -1212,35 +1301,43 @@
     }
 
     function calculateAverages() {
-      const goalRatings = validNumericValues('.goal-rating');
+      const kpis = getKpiRows();
+      const totalWeight = kpis.reduce((sum, item) => sum + (Number.isFinite(item.weight) ? item.weight : 0), 0);
+      const allKpiRatingsComplete = kpis.length > 0 && kpis.every(item => Number.isFinite(item.rating));
+      const weightedSum = kpis.reduce((sum, item) => {
+        if (!Number.isFinite(item.weight) || !Number.isFinite(item.rating)) return sum;
+        return sum + (item.weight * item.rating);
+      }, 0);
+      const goalsAvg = totalWeight > 0 && allKpiRatingsComplete ? weightedSum / totalWeight : 0;
+      const weightIs100 = Math.abs(totalWeight - 100) < 0.001;
+      const goalsReady = allKpiRatingsComplete && weightIs100;
+
+      const weightStatus = document.getElementById('kpiWeightStatus');
+      weightStatus.textContent = `Total KPI Weight: ${Number(totalWeight.toFixed(2))}% · ${weightIs100 ? 'Ready' : 'Must equal 100%'}`;
+      weightStatus.classList.toggle('valid', weightIs100);
+      weightStatus.classList.toggle('invalid', !weightIs100);
+
       const effectRatings = validNumericValues('.effect-rating');
-
-      const goalsComplete = goalRatings.length === document.querySelectorAll('.goal-rating').length;
       const effectComplete = effectRatings.length === document.querySelectorAll('.effect-rating').length;
-
-      const goalsAvg = goalRatings.length
-        ? goalRatings.reduce((a, b) => a + b, 0) / goalRatings.length
-        : 0;
-
       const effectAvg = effectRatings.length
         ? effectRatings.reduce((a, b) => a + b, 0) / effectRatings.length
         : 0;
 
-      setFieldValue('performance_goals_average', goalRatings.length ? goalsAvg.toFixed(1) : '');
+      setFieldValue('performance_goals_average', allKpiRatingsComplete && totalWeight > 0 ? goalsAvg.toFixed(2) : '');
       setFieldValue('personal_effectiveness_average', effectRatings.length ? effectAvg.toFixed(1) : '');
 
       const weightedGoals = goalsAvg * 0.60;
       const weightedEffectiveness = effectAvg * 0.40;
       const overall = weightedGoals + weightedEffectiveness;
 
-      setFieldValue('summary_goals', goalsComplete ? weightedGoals.toFixed(1) : '');
-      setFieldValue('summary_effectiveness', effectComplete ? weightedEffectiveness.toFixed(1) : '');
-      setFieldValue('summary_overall', (goalsComplete && effectComplete) ? overall.toFixed(1) : '');
+      setFieldValue('summary_goals', goalsReady ? weightedGoals.toFixed(2) : '');
+      setFieldValue('summary_effectiveness', effectComplete ? weightedEffectiveness.toFixed(2) : '');
+      setFieldValue('summary_overall', (goalsReady && effectComplete) ? overall.toFixed(2) : '');
 
-      document.getElementById('summaryGoalsDisplay').textContent = goalsComplete ? weightedGoals.toFixed(1) : '—';
-      document.getElementById('summaryEffectivenessDisplay').textContent = effectComplete ? weightedEffectiveness.toFixed(1) : '—';
-      document.getElementById('summaryOverallDisplay').textContent = (goalsComplete && effectComplete) ? overall.toFixed(1) : '—';
-      document.getElementById('heroOverall').textContent = (goalsComplete && effectComplete) ? overall.toFixed(1) : '—';
+      document.getElementById('summaryGoalsDisplay').textContent = goalsReady ? weightedGoals.toFixed(2) : '—';
+      document.getElementById('summaryEffectivenessDisplay').textContent = effectComplete ? weightedEffectiveness.toFixed(2) : '—';
+      document.getElementById('summaryOverallDisplay').textContent = (goalsReady && effectComplete) ? overall.toFixed(2) : '—';
+      document.getElementById('heroOverall').textContent = (goalsReady && effectComplete) ? overall.toFixed(2) : '—';
     }
 
     function updatePreview(textarea, previewId) {
@@ -1334,6 +1431,15 @@
         group.style.outlineOffset = '';
       }
 
+      const kpis = getKpiRows();
+      const totalKpiWeight = kpis.reduce((sum, item) => sum + (Number.isFinite(item.weight) ? item.weight : 0), 0);
+      if (!kpis.length || Math.abs(totalKpiWeight - 100) >= 0.001) {
+        const section = document.getElementById('performanceGoalsSection');
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showModal('error', 'Check KPI weights', `The total KPI weight is ${Number(totalKpiWeight.toFixed(2))}%. Adjust the KPI weights so the total equals 100% before submitting.`);
+        return false;
+      }
+
       if (firstInvalid) {
         firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
         showModal('error', 'Please complete the form', 'Some required information or ratings are still missing. The first incomplete field has been highlighted.');
@@ -1345,6 +1451,8 @@
 
     function serializeForm() {
       const signatureState = setSignaturePayloads();
+      const kpiPayload = document.getElementById('performance_kpis');
+      if (kpiPayload) kpiPayload.value = buildPerformanceKpisText();
       const fd = new FormData(form);
       const data = {};
 
@@ -1404,6 +1512,9 @@
 
         showModal('success', 'Evaluation submitted', 'The performance evaluation was submitted successfully.');
         form.reset();
+        document.getElementById('kpiBody').innerHTML = '';
+        addKPIRow({ kpi: 'CCTR', goal: 'Actual CCTR/CCTR Goal', weight: '20' });
+        document.getElementById('performance_kpis').value = '';
         resetSignatures();
         document.querySelectorAll('.evidence-preview').forEach(el => el.style.display = 'none');
         calculateAverages();
@@ -1419,6 +1530,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       populateRatingSelects();
+      addKPIRow({ kpi: 'CCTR', goal: 'Actual CCTR/CCTR Goal', weight: '20' });
       setupSignaturePad('employee', 'employeeSignaturePad', 'employeeSignatureState');
       setupSignaturePad('supervisor', 'supervisorSignaturePad', 'supervisorSignatureState');
       setupSignaturePad('manager', 'managerSignaturePad', 'managerSignatureState');
