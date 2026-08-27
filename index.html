@@ -784,7 +784,14 @@
 </div>
 <div class="field">
 <label class="field-label required" for="assessment_date">Assessment Date</label>
-<input id="assessment_date" type="date" name="assessment_date" required />
+<input
+  id="assessment_date"
+  type="date"
+  name="assessment_date"
+  min="2000-01-01"
+  max="2100-12-31"
+  required
+/>
 </div>
 <div class="field">
 <label class="field-label required" for="assessment_period">Assessment Period</label>
@@ -980,7 +987,7 @@
 <div class="development-fields">
 <div class="field"><label class="field-label">Improvement / Development Area</label><input type="text" name="dev_area1"></div>
 <div class="field"><label class="field-label">Development Activities</label><textarea name="dev_activities1"></textarea></div>
-<div class="field"><label class="field-label">Target Date</label><input type="date" name="dev_target1"></div>
+<div class="field"><label class="field-label">Target Date</label><input type="date" name="dev_target1" min="2000-01-01" max="2100-12-31"></div>
 <div class="field"><label class="field-label">Success Criteria</label><textarea name="dev_criteria1"></textarea></div>
 <div class="field"><label class="field-label">Status</label><input type="text" name="dev_status1" placeholder="e.g. Planned"></div>
 </div>
@@ -990,7 +997,7 @@
 <div class="development-fields">
 <div class="field"><label class="field-label">Improvement / Development Area</label><input type="text" name="dev_area2"></div>
 <div class="field"><label class="field-label">Development Activities</label><textarea name="dev_activities2"></textarea></div>
-<div class="field"><label class="field-label">Target Date</label><input type="date" name="dev_target2"></div>
+<div class="field"><label class="field-label">Target Date</label><input type="date" name="dev_target2" min="2000-01-01" max="2100-12-31"></div>
 <div class="field"><label class="field-label">Success Criteria</label><textarea name="dev_criteria2"></textarea></div>
 <div class="field"><label class="field-label">Status</label><input type="text" name="dev_status2" placeholder="e.g. Planned"></div>
 </div>
@@ -1000,7 +1007,7 @@
 <div class="development-fields">
 <div class="field"><label class="field-label">Improvement / Development Area</label><input type="text" name="dev_area3"></div>
 <div class="field"><label class="field-label">Development Activities</label><textarea name="dev_activities3"></textarea></div>
-<div class="field"><label class="field-label">Target Date</label><input type="date" name="dev_target3"></div>
+<div class="field"><label class="field-label">Target Date</label><input type="date" name="dev_target3" min="2000-01-01" max="2100-12-31"></div>
 <div class="field"><label class="field-label">Success Criteria</label><textarea name="dev_criteria3"></textarea></div>
 <div class="field"><label class="field-label">Status</label><input type="text" name="dev_status3" placeholder="e.g. Planned"></div>
 </div>
@@ -1393,6 +1400,29 @@
       }
     }
 
+function isSafeDate(value) {
+  if (!value) return true; // optional dates can be blank
+
+  // Must be exactly YYYY-MM-DD
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+
+  if (year < 2000 || year > 2100) return false;
+
+  const date = new Date(year, month - 1, day);
+
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  );
+}
+
+
     function validateForm() {
       clearValidationState();
       let firstInvalid = null;
@@ -1418,6 +1448,57 @@
         markInvalid(supEmail, 'Enter a valid supervisor email address.');
         if (!firstInvalid) firstInvalid = supEmail;
       }
+
+      const dateFields = [
+  {
+    field: form.elements['assessment_date'],
+    label: 'Assessment Date',
+    required: true
+  },
+  {
+    field: form.elements['dev_target1'],
+    label: 'Development Item 1 Target Date',
+    required: false
+  },
+  {
+    field: form.elements['dev_target2'],
+    label: 'Development Item 2 Target Date',
+    required: false
+  },
+  {
+    field: form.elements['dev_target3'],
+    label: 'Development Item 3 Target Date',
+    required: false
+  }
+];
+
+for (const item of dateFields) {
+  const value = item.field?.value?.trim() || '';
+
+  if (!value && !item.required) {
+    continue;
+  }
+
+  if (!isSafeDate(value)) {
+    markInvalid(
+      item.field,
+      'Enter a valid date using a year between 2000 and 2100.'
+    );
+
+    item.field.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+
+    showModal(
+      'error',
+      'Check date',
+      `${item.label} is invalid. Please enter a valid date with a 4-digit year between 2000 and 2100.`
+    );
+
+    return false;
+  }
+}
 
       const assessmentTypes = document.querySelectorAll('input[name="assessment_type[]"]:checked');
       if (!assessmentTypes.length) {
